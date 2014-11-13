@@ -1,0 +1,76 @@
+ezdedup: deduplication workload, made easy.
+
+Overview
+========
+
+The ezdedup workload is taken from the original Princeton Application Repository
+for Shared-Memory Computers (PARSEC 3.0) suite: http://parsec.cs.princeton.edu
+It is simplified for kernel development/performance purposes, and as such its
+usage does not rely on anything from PARSEC. This makes the program usage
+significantly more straightforward.
+
+As described by the original 2011 "Benchmarking Modern Multiprocessors" Ph.D
+thesis by Christian Bienia, deduplication is a form of compression stream with a 
+combination of global compression and local compression in order to achieve high
+compression ratios. The dedup workload uses a pipeline model for function level
+parallelism, with five stages:
+
+   (1) Read the input file from disk and determines the locations where the
+       data is to be split up by jumping a fixed length in the buffer for each
+       chunk. The resulting data blocks are enqueued for the next stages. These
+       are coarse grained chunks.
+    
+   (2) Identifies brief sequences in the data stream that are identical with
+       sufficiently high probability (anchoring) by using a rolling hash to
+       segment data based on its contents. The data is then broken up into two
+       separate blocks at the determined location.
+
+   (3) Computes a SHA1 checksum for each chunk and checks for duplicate blocks
+       with the use of a global database 
+
+   (4) Compresses each data segment with the Ziv-Lempel algorithm and builds a
+       global hash table that maps hash values to data. Every data block is
+       compressed only once because the previous stage does not send duplicates
+       to the compression stage.
+
+   (5) Assembles the deduplicated output stream consisting of hash values and
+       compressed data segments.
+
+Note that stages (i) and (v) are serial. Please refer to the document described
+above for complete details.
+
+Usage
+=====
+
+$> dedup [-cusfvh] [-w gzip/bzip2/none] [-i file] [-o file] [-t number_of_threads]
+-c                      compress
+-u                      uncompress
+-p                      preloading (for benchmarking purposes)
+-w                      compression type: gzip/bzip2/none
+-i file                 the input file
+-o file                 the output file
+-t                      number of threads per stage 
+-v                      verbose output
+-h                      help
+
+Examples:
+
+o Compress a qemu image with qcow2 compression, each parallel 
+  stage will use two threads:
+
+$> dedup -v -p -t 2 -i linux.qcow2 -o outfile
+PARSEC Benchmark Suite
+Total input size:                     2433.81 MB
+Total output size:                    1108.74 MB
+Effective compression factor:            2.20x
+
+Mean data chunk size:                    0.22 KB (stddev: 4022.08 KB)
+Amount of duplicate chunks:             95.99%
+Data size after deduplication:        2028.62 MB (compression factor: 1.20x)
+Data size after compression:           762.95 MB (compression factor: 2.66x)
+Output overhead:                        31.19%
+
+o Uncecompress the output file and restore its original size:
+
+$> dedup -u -v -p -t 2 -i outfile -o originalfile
+
