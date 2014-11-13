@@ -10,7 +10,7 @@ usage does not rely on anything from PARSEC. This makes the program usage
 significantly more straightforward.
 
 As described by the original 2011 "Benchmarking Modern Multiprocessors" Ph.D
-thesis by Christian Bienia, deduplication is a form of compression stream with a 
+thesis by Christian Bienia, deduplication is a form of compression stream with a
 combination of global compression and local compression in order to achieve high
 compression ratios. The dedup workload uses a pipeline model for function level
 parallelism, with five stages:
@@ -19,14 +19,14 @@ parallelism, with five stages:
        data is to be split up by jumping a fixed length in the buffer for each
        chunk. The resulting data blocks are enqueued for the next stages. These
        are coarse grained chunks.
-    
+
    (2) Identifies brief sequences in the data stream that are identical with
        sufficiently high probability (anchoring) by using a rolling hash to
        segment data based on its contents. The data is then broken up into two
        separate blocks at the determined location.
 
    (3) Computes a SHA1 checksum for each chunk and checks for duplicate blocks
-       with the use of a global database 
+       with the use of a global database
 
    (4) Compresses each data segment with the Ziv-Lempel algorithm and builds a
        global hash table that maps hash values to data. Every data block is
@@ -49,13 +49,13 @@ dedup [-cusfvh] [-w gzip/bzip2/none] [-i file] [-o file] [-t number_of_threads]
 -w                      compression type: gzip/bzip2/none
 -i file                 the input file
 -o file                 the output file
--t                      number of threads per stage 
+-t                      number of threads per stage
 -v                      verbose output
 -h                      help
 
 Examples:
 
-o Compress a qemu image with qcow2 compression, each parallel 
+o Compress a qemu image with qcow2 compression, each parallel
   stage will use two threads:
 
 $> dedup -c -v -p -t 2 -i linux.qcow2 -o outfile
@@ -73,4 +73,3 @@ Output overhead:                        31.19%
 o Uncompress the output file and restore its original size:
 
 $> dedup -u -v -p -t 2 -i outfile -o originalfile
-
