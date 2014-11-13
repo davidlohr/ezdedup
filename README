@@ -42,7 +42,7 @@ above for complete details.
 Usage
 =====
 
-$> dedup [-cusfvh] [-w gzip/bzip2/none] [-i file] [-o file] [-t number_of_threads]
+dedup [-cusfvh] [-w gzip/bzip2/none] [-i file] [-o file] [-t number_of_threads]
 -c                      compress
 -u                      uncompress
 -p                      preloading (for benchmarking purposes)
@@ -58,7 +58,7 @@ Examples:
 o Compress a qemu image with qcow2 compression, each parallel 
   stage will use two threads:
 
-$> dedup -v -p -t 2 -i linux.qcow2 -o outfile
+$> dedup -c -v -p -t 2 -i linux.qcow2 -o outfile
 PARSEC Benchmark Suite
 Total input size:                     2433.81 MB
 Total output size:                    1108.74 MB
@@ -70,7 +70,7 @@ Data size after deduplication:        2028.62 MB (compression factor: 1.20x)
 Data size after compression:           762.95 MB (compression factor: 2.66x)
 Output overhead:                        31.19%
 
-o Uncecompress the output file and restore its original size:
+o Uncompress the output file and restore its original size:
 
 $> dedup -u -v -p -t 2 -i outfile -o originalfile
 
