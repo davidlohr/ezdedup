@@ -124,6 +124,11 @@ int main(int argc, char** argv) {
     }
   }
 
+  if (argc < 2) {
+	  usage(argv[0]);
+	  exit(EXIT_FAILURE);
+  }
+
 #ifndef ENABLE_BZIP2_COMPRESSION
  if (conf->compress_type == COMPRESS_BZIP2){
     printf("Bzip2 compression not supported\n");
